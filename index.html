@@ -81,6 +81,12 @@
   .msg .t { font-family: var(--mono); font-size: .65rem; color: var(--faint); }
   .chip { font-family: var(--mono); font-size: .6rem; color: var(--muted); border: 1px solid var(--line); padding: 1px 7px; border-radius: 999px; }
   .chip.agent { color: var(--honey-bright); border-color: rgba(232,179,74,.4); }
+  .chip.via { color: var(--honey-bright); border-color: rgba(232,179,74,.4); animation: viaPulse 3s ease-in-out infinite; }
+  @keyframes viaPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(232,179,74,0); border-color: rgba(232,179,74,.3); }
+    50% { box-shadow: 0 0 10px 1px rgba(232,179,74,.4); border-color: rgba(232,179,74,.9); }
+  }
+  @media (prefers-reduced-motion: reduce) { .chip.via { animation: none; border-color: rgba(232,179,74,.6); } }
   .msg p { margin: 3px 0 0; color: var(--muted); }
   .feed-card { border: 1px solid var(--line); border-left: 2px solid var(--honey); border-radius: 6px; padding: 9px 12px; background: var(--panel-2); }
   .feed-card .src { font-family: var(--mono); font-size: .62rem; color: var(--faint); }
@@ -256,7 +262,7 @@
               <p>Homeserver upgrade is done, media store moved to S3. No downtime.</p>
             </div></div>
             <div class="msg"><span class="av"></span><div class="mc">
-              <div class="h"><span class="who">Tuomas Rinne</span><span class="t">14:36</span><span class="chip">via Teams</span></div>
+              <div class="h"><span class="who">Tuomas Rinne</span><span class="t">14:36</span><span class="chip via">via Teams</span></div>
               <p>Procurement signed off, ticket number coming here.</p>
             </div></div>
             <div class="msg"><span class="av agent"></span><div class="mc">
@@ -320,11 +326,11 @@
           <p>Native message. No label, because there is nothing to explain.</p>
         </div></div>
         <div class="msg"><span class="av"></span><div class="mc">
-          <div class="h"><span class="who">Marko Virta</span><span class="t">09:16</span><span class="chip">via Slack</span></div>
+          <div class="h"><span class="who">Marko Virta</span><span class="t">09:16</span><span class="chip via">via Slack</span></div>
           <p>Arrived through Relay. Same weight, same typography, one label.</p>
         </div></div>
         <div class="msg"><span class="av"></span><div class="mc">
-          <div class="h"><span class="who">Elina Aho</span><span class="t">09:21</span><span class="chip">via Teams</span></div>
+          <div class="h"><span class="who">Elina Aho</span><span class="t">09:21</span><span class="chip via">via Teams</span></div>
           <p>Replying in a thread works across the bridge in both directions.</p>
         </div></div>
       </div>
@@ -401,7 +407,8 @@
     </div>
     <div class="prose" style="margin-top:22px"><p><strong>Your models.</strong> Agents run on
       your infrastructure with your keys — cloud models or local ones. Conversations
-      never leave your servers to think.</p></div>
+      never leave your servers to think. Different agents can run different models —
+      and a channel&rsquo;s policy can pin its agents to models that run in your own racks.</p></div>
   </section>
 
   <section id="selfhost">
