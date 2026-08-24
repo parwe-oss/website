@@ -13,6 +13,7 @@
     --faint: #6B7280;
     --honey: #E8B34A;
     --honey-bright: #F3C87A;
+    --mint: #52D98B;
     --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; }
@@ -86,6 +87,7 @@
   .feed-card p { margin: 4px 0 0; color: var(--text); }
   .composer { border-top: 1px solid var(--line); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; color: var(--faint); }
   .composer .hint { font-family: var(--mono); font-size: .62rem; }
+  .composer .hint.enc { color: var(--mint); }
 
   section { padding: 64px 0; border-top: 1px solid var(--line); }
   h2 { font-size: clamp(1.5rem, 3vw, 2rem); letter-spacing: -.01em; margin: 14px 0 16px; text-wrap: balance; }
@@ -96,6 +98,7 @@
   .status { display: flex; gap: 10px 28px; flex-wrap: wrap; margin-top: 26px; font-family: var(--mono); font-size: .78rem; }
   .status span { color: var(--muted); }
   .status span::before { content: "▸ "; color: var(--honey); }
+  .status span.done::before { color: var(--mint); }
 
   .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 34px; }
   @media (max-width: 880px) { .grid4 { grid-template-columns: repeat(2, 1fr); } }
@@ -157,7 +160,7 @@
   .term .cap { font-family: var(--mono); font-size: .66rem; letter-spacing: .13em; color: var(--faint); padding: 12px 18px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; }
   .term .cap .pv { color: var(--honey); }
   .term pre { margin: 0; padding: 18px; font-family: var(--mono); font-size: .8rem; line-height: 1.9; color: var(--muted); overflow-x: auto; }
-  .term .ok { color: #7BC796; }
+  .term .ok { color: var(--mint); }
   .cellstrip { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
   @media (max-width: 520px) { .cellstrip { grid-template-columns: 1fr; } }
   .cellstrip div { padding: 13px 18px; }
@@ -168,12 +171,17 @@
 
   .topbar { background: #07090B; border-bottom: 1px solid #161B21; }
   .band { background:
-      radial-gradient(1000px 560px at 78% -10%, rgba(232,179,74,.13), transparent 55%),
-      radial-gradient(700px 420px at 12% 115%, rgba(232,179,74,.05), transparent 60%),
-      linear-gradient(180deg, #07090B, var(--ink) 70%);
+      radial-gradient(1150px 640px at 28% -8%, rgba(232,179,74,.19), transparent 58%),
+      radial-gradient(760px 460px at 88% 60%, rgba(232,179,74,.07), transparent 60%),
+      linear-gradient(180deg, #07090B, var(--ink) 75%);
     border-bottom: 1px solid var(--line); }
+  #agents { background: radial-gradient(720px 420px at 92% 12%, rgba(232,179,74,.08), transparent 60%); }
+  #runit { background: radial-gradient(720px 440px at 4% 85%, rgba(232,179,74,.08), transparent 60%); }
+  #selfhost { background: radial-gradient(640px 380px at 55% 110%, rgba(232,179,74,.05), transparent 60%); }
   header.site nav { align-items: center; }
-  .navbtn { padding: 8px 16px; font-size: .88rem; color: #14100a; }
+  .navbtn { padding: 8px 16px; font-size: .88rem; }
+  header.site nav a.btn { color: #14100a; }
+  header.site nav a.btn:hover { color: #14100a; text-decoration: none; }
   .eyebrow .dt { color: var(--honey); font-size: .58rem; vertical-align: 2px; margin-right: 4px; }
   .phline { font-family: var(--mono); font-size: .82rem; color: var(--faint); margin: 0 0 18px; }
   .phline b { color: var(--text); font-weight: 600; }
@@ -222,7 +230,7 @@
       </div>
       <p class="meta-line chips">Self-hosted<span>·</span>Closed federation<span>·</span>AGPLv3 + Apache-2.0</p>
       <p class="meta-line"><b>Status:</b> in early development — the stack below is running in a
-        private pilot. First public release lands in this org. No installable release yet.</p>
+        private pilot. First public release lands in this org. No installable release yet. · <a href="https://www.linkedin.com/in/tiltti/">Contact author</a></p>
     </div>
 
     <div class="mock" role="img" aria-label="Preview of the planned Parwe client">
@@ -260,7 +268,7 @@
               <p>New on-call rotation starts Monday</p>
             </div>
           </div>
-          <div class="composer"><span>Message #general</span><span class="hint">your servers · your retention</span></div>
+          <div class="composer"><span>Message #general</span><span class="hint enc">end-to-end encrypted</span></div>
         </div>
       </div>
     </div>
@@ -408,8 +416,8 @@
       <div class="card"><h3>No licence fees</h3><p>AGPLv3 and Apache-2.0. Read the code, fork it, run it for as many people as you like.</p></div>
     </div>
     <div class="status">
-      <span>architecture locked</span>
-      <span>core stack in private pilot</span>
+      <span class="done">architecture locked</span>
+      <span class="done">core stack in private pilot</span>
       <span>clients &amp; relay in development</span>
       <span>agents: designed, not yet built</span>
       <span>first release: compose quickstart</span>
