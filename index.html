@@ -1,9 +1,459 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Parwe</title>
-<style>body{font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0;background:#14181d;color:#e8e6e0}
-main{text-align:center;padding:2rem}h1{font-size:3rem;letter-spacing:.02em;margin:0 0 .5rem}p{color:#9aa3ad}a{color:#e8b64c}</style></head>
-<body><main><h1>Parwe</h1>
-<p>Self-hosted communication hub built on <a href="https://matrix.org">Matrix</a>.<br>
-Every conversation. One place. Coming soon.</p>
-<p><a href="https://github.com/parwe-oss">github.com/parwe-oss</a></p></main></body></html>
+<link rel="icon" type="image/svg+xml" href="/parwe-favicon.svg">
+<style>
+  :root {
+    --ink: #0D0F12;
+    --panel: #14171C;
+    --panel-2: #191D23;
+    --line: #242A32;
+    --text: #E8EAEE;
+    --muted: #979DA8;
+    --faint: #6B7280;
+    --honey: #E8B34A;
+    --honey-bright: #F3C87A;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0; background: var(--ink); color: var(--text);
+    font: 16px/1.6 -apple-system, "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--honey-bright); text-decoration: none; }
+  a:hover, a:focus-visible { text-decoration: underline; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--honey); outline-offset: 3px; border-radius: 2px; }
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+
+  header.site { display: flex; align-items: center; gap: 12px; padding: 22px 0; }
+  header.site .mark { flex: none; }
+  .wordmark { font-weight: 650; font-size: 1.15rem; letter-spacing: .01em; color: var(--text); }
+  .phon { font-family: var(--mono); font-size: .78rem; color: var(--faint); margin-left: 8px; }
+  header.site nav { margin-left: auto; display: flex; gap: 22px; font-size: .92rem; }
+  header.site nav a { color: var(--muted); }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .eyebrow .soon { color: var(--honey); }
+
+  .hero { display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; padding: 56px 0 72px; }
+  @media (max-width: 880px) { .hero { grid-template-columns: 1fr; padding-top: 32px; } }
+  h1 {
+    font-size: clamp(2.3rem, 5.2vw, 3.4rem); line-height: 1.08; margin: 18px 0 20px;
+    letter-spacing: -.02em; font-weight: 700; text-wrap: balance;
+  }
+  h1 em { font-style: normal; color: var(--honey); }
+  .lede { color: var(--muted); max-width: 34em; margin: 0 0 26px; }
+  .ctas { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+  .btn {
+    display: inline-block; padding: 11px 20px; border-radius: 6px; font-weight: 600; font-size: .95rem;
+    background: var(--honey); color: #14100a; border: 1px solid var(--honey);
+  }
+  .btn:hover { background: var(--honey-bright); text-decoration: none; }
+  .btn.ghost { background: transparent; color: var(--text); border-color: var(--line); }
+  .btn.ghost:hover { border-color: var(--muted); }
+  .meta-line { font-family: var(--mono); font-size: .75rem; color: var(--faint); margin-top: 22px; }
+  .meta-line b { color: var(--muted); font-weight: 500; }
+
+  /* mock client */
+  .mock { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: .82rem; box-shadow: 0 18px 48px rgba(0,0,0,.45); }
+  .mock .bar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; border-bottom: 1px solid var(--line); font-family: var(--mono); font-size: .72rem; color: var(--faint); }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); }
+  .mock .cols { display: grid; grid-template-columns: 158px 1fr; min-height: 320px; }
+  .mock .side { border-right: 1px solid var(--line); padding: 12px 0; background: var(--panel-2); }
+  .side h4 { font-family: var(--mono); font-size: .62rem; letter-spacing: .12em; color: var(--faint); margin: 12px 14px 6px; font-weight: 500; }
+  .side .ch { padding: 4px 14px; color: var(--muted); display: flex; justify-content: space-between; }
+  .side .ch.on { color: #14100a; background: var(--honey); font-weight: 600; border-radius: 0 5px 5px 0; margin-right: 10px; }
+  .side .n { background: var(--honey); color: #14100a; border-radius: 8px; font-size: .62rem; padding: 0 6px; font-weight: 700; align-self: center; }
+  .mock .main { display: flex; flex-direction: column; }
+  .mock .chan { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  .mock .chan b { font-weight: 600; }
+  .swarm-btn { font-family: var(--mono); font-size: .68rem; color: #14100a; background: var(--honey); font-weight: 700; padding: 4px 11px; border-radius: 999px; }
+  .msgs { padding: 12px 14px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .msg .h { display: flex; gap: 8px; align-items: baseline; }
+  .msg .who { font-weight: 600; font-size: .8rem; }
+  .msg .t { font-family: var(--mono); font-size: .65rem; color: var(--faint); }
+  .chip { font-family: var(--mono); font-size: .6rem; color: var(--muted); border: 1px solid var(--line); padding: 1px 7px; border-radius: 999px; }
+  .chip.agent { color: var(--honey-bright); border-color: rgba(232,179,74,.4); }
+  .msg p { margin: 3px 0 0; color: var(--muted); }
+  .feed-card { border: 1px solid var(--line); border-left: 2px solid var(--honey); border-radius: 6px; padding: 9px 12px; background: var(--panel-2); }
+  .feed-card .src { font-family: var(--mono); font-size: .62rem; color: var(--faint); }
+  .feed-card p { margin: 4px 0 0; color: var(--text); }
+  .composer { border-top: 1px solid var(--line); padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; color: var(--faint); }
+  .composer .hint { font-family: var(--mono); font-size: .62rem; }
+
+  section { padding: 64px 0; border-top: 1px solid var(--line); }
+  h2 { font-size: clamp(1.5rem, 3vw, 2rem); letter-spacing: -.01em; margin: 14px 0 16px; text-wrap: balance; }
+  .prose { color: var(--muted); max-width: 44em; }
+  .prose p { margin: 0 0 16px; }
+  .prose strong { color: var(--text); font-weight: 600; }
+
+  .status { display: flex; gap: 10px 28px; flex-wrap: wrap; margin-top: 26px; font-family: var(--mono); font-size: .78rem; }
+  .status span { color: var(--muted); }
+  .status span::before { content: "▸ "; color: var(--honey); }
+
+  .grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 34px; }
+  @media (max-width: 880px) { .grid4 { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 520px) { .grid4 { grid-template-columns: 1fr; } }
+  .card { border: 1px solid var(--line); border-radius: 8px; padding: 18px; background: var(--panel); }
+  .card h3 { margin: 0 0 8px; font-size: 1rem; }
+  .card h3 span { color: var(--honey); font-family: var(--mono); font-size: .72rem; margin-right: 6px; }
+  .card p { margin: 0; color: var(--muted); font-size: .9rem; }
+
+  .bullets { list-style: none; padding: 0; margin: 22px 0 0; display: flex; flex-direction: column; gap: 10px; }
+  .bullets li { padding-left: 22px; position: relative; color: var(--muted); max-width: 40em; }
+  .bullets li::before { content: ""; position: absolute; left: 2px; top: .55em; width: 8px; height: 8px;
+    border-right: 2px solid var(--honey); border-bottom: 2px solid var(--honey); transform: rotate(-45deg); }
+
+  .arch { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 18px; margin-top: 34px; }
+  @media (max-width: 880px) { .arch { grid-template-columns: 1fr; } }
+  .arch .col h3 { font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); font-weight: 500; margin: 0 0 12px; }
+  .arch .item { border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; margin-bottom: 10px; background: var(--panel); display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .arch .item b { font-weight: 600; font-size: .92rem; }
+  .arch .item span { font-family: var(--mono); font-size: .68rem; color: var(--faint); text-align: right; }
+  .arch .note { font-family: var(--mono); font-size: .72rem; color: var(--faint); margin-top: 4px; }
+  .arch .core { border-color: rgba(232,179,74,.35); }
+
+  footer.site { border-top: 1px solid var(--line); padding: 40px 0 56px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  footer.site .lic { margin-left: auto; font-family: var(--mono); font-size: .72rem; color: var(--faint); text-align: right; }
+  .palette { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .pill { font-family: var(--mono); font-size: .74rem; padding: 5px 13px; border-radius: 999px;
+    border: 1px solid var(--line); color: var(--muted); }
+  .pill.now { border-color: rgba(232,179,74,.5); color: var(--honey-bright); background: rgba(232,179,74,.08); }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+  @media (max-width: 880px) { .split { grid-template-columns: 1fr; } }
+  .opanel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 6px 0; }
+  .opanel .cap { font-family: var(--mono); font-size: .62rem; letter-spacing: .13em; color: var(--faint); padding: 10px 16px 6px; text-transform: uppercase; }
+  .opanel .msg { padding: 10px 16px; }
+  .opanel .msg + .msg { border-top: 1px solid var(--line); }
+
+  .archbox { border: 1px solid var(--line); border-radius: 12px; margin-top: 34px; background: var(--panel-2); overflow: hidden; }
+  .archcols { display: grid; grid-template-columns: 1fr 1.35fr 1fr; }
+  @media (max-width: 880px) { .archcols { grid-template-columns: 1fr; } }
+  .archcols .col { padding: 22px; }
+  .archcols .col + .col { border-left: 1px solid var(--line); }
+  @media (max-width: 880px) { .archcols .col + .col { border-left: 0; border-top: 1px solid var(--line); } }
+  .archcols h3 { font-family: var(--mono); font-size: .7rem; letter-spacing: .13em; text-transform: uppercase; color: var(--faint); font-weight: 500; margin: 0 0 14px; display: flex; justify-content: space-between; gap: 8px; }
+  .archcols h3 .hl { color: var(--honey); }
+  .archcols h3 .sub { text-transform: none; letter-spacing: .04em; }
+  .aitem { border: 1px solid var(--line); border-radius: 8px; padding: 11px 14px; margin-bottom: 10px; background: var(--panel); display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .aitem b { font-weight: 600; font-size: .93rem; }
+  .aitem span { font-family: var(--mono); font-size: .68rem; color: var(--faint); text-align: right; flex: none; }
+  .aitem.syn { display: block; border-color: rgba(232,179,74,.45); background: rgba(232,179,74,.05); }
+  .aitem.syn .row { display: flex; justify-content: space-between; align-items: baseline; }
+  .aitem.syn b { color: var(--honey); font-size: 1.05rem; }
+  .aitem.syn span { color: var(--honey-bright); opacity: .75; }
+  .aitem.syn p { margin: 6px 0 0; font-size: .84rem; color: var(--muted); }
+  .anote { font-family: var(--mono); font-size: .7rem; color: var(--faint); margin-top: 12px; line-height: 1.7; }
+  .archfoot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--line); padding: 14px 22px; font-family: var(--mono); font-size: .72rem; color: var(--faint); }
+
+  .term { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .term .cap { font-family: var(--mono); font-size: .66rem; letter-spacing: .13em; color: var(--faint); padding: 12px 18px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; }
+  .term .cap .pv { color: var(--honey); }
+  .term pre { margin: 0; padding: 18px; font-family: var(--mono); font-size: .8rem; line-height: 1.9; color: var(--muted); overflow-x: auto; }
+  .term .ok { color: #7BC796; }
+  .cellstrip { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+  @media (max-width: 520px) { .cellstrip { grid-template-columns: 1fr; } }
+  .cellstrip div { padding: 13px 18px; }
+  .cellstrip div + div { border-left: 1px solid var(--line); }
+  @media (max-width: 520px) { .cellstrip div + div { border-left: 0; border-top: 1px solid var(--line); } }
+  .cellstrip b { display: block; font-size: .88rem; font-weight: 600; }
+  .cellstrip span { font-family: var(--mono); font-size: .68rem; color: var(--faint); }
+
+  .topbar { background: #07090B; border-bottom: 1px solid #161B21; }
+  .band { background:
+      radial-gradient(1000px 560px at 78% -10%, rgba(232,179,74,.13), transparent 55%),
+      radial-gradient(700px 420px at 12% 115%, rgba(232,179,74,.05), transparent 60%),
+      linear-gradient(180deg, #07090B, var(--ink) 70%);
+    border-bottom: 1px solid var(--line); }
+  header.site nav { align-items: center; }
+  .navbtn { padding: 8px 16px; font-size: .88rem; color: #14100a; }
+  .eyebrow .dt { color: var(--honey); font-size: .58rem; vertical-align: 2px; margin-right: 4px; }
+  .phline { font-family: var(--mono); font-size: .82rem; color: var(--faint); margin: 0 0 18px; }
+  .phline b { color: var(--text); font-weight: 600; }
+  .phline .ph { color: var(--honey); margin: 0 10px 0 8px; }
+  .phline .sep { margin-right: 10px; color: var(--line); }
+  .meta-line.chips span { color: var(--honey); margin: 0 6px; }
+  .msg { display: flex; gap: 10px; align-items: flex-start; }
+  .av { width: 26px; height: 26px; border-radius: 7px; background: #252B33; flex: none; margin-top: 2px; }
+  .av.agent { background: rgba(232,179,74,.22); border: 1px solid rgba(232,179,74,.5); }
+  .mc { flex: 1; min-width: 0; }
+</style>
+
+<div class="topbar"><div class="wrap">
+  <header class="site">
+    <svg class="mark" width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M13.2 8.4 16 5.2 18.8 8.4" stroke="#E8B34A" stroke-width="2.3"></path>
+      <g stroke="#E8EAEE" stroke-width="2.1"><path d="M6.4 20.6 9.2 17.4 12 20.6"></path><path d="M20 20.6 22.8 17.4 25.6 20.6"></path><path d="M13.2 15.2 16 12 18.8 15.2"></path></g>
+      <g stroke="#979DA8" stroke-width="1.9"><path d="M9.2 26.4 12 23.2 14.8 26.4"></path><path d="M17.2 26.4 20 23.2 22.8 26.4"></path></g>
+    </g></svg>
+    <span class="wordmark">Parwe<span class="phon">/ˈpɑr·ʋi/</span></span>
+    <nav>
+      <a href="#product">Product</a>
+      <a href="#agents">Agents</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#selfhost">Self-hosting</a>
+      <a href="https://github.com/parwe-oss">GitHub</a>
+      <a class="btn navbtn" href="https://github.com/parwe-oss">Follow on GitHub</a>
+    </nav>
+  </header>
+</div></div>
+
+<div class="band"><div class="wrap">
+  <div class="hero">
+    <div>
+      <div class="eyebrow"><span class="dt">●</span>Open source · built on Matrix · <span class="soon">coming soon</span></div>
+      <h1>Every conversation. One <em>place</em>.</h1>
+      <div class="phline"><b>Parwe</b><span class="ph">/ˈpɑr·ʋi/</span><span class="sep">|</span>said <b>par-vi</b> — Finnish for a flock</div>
+      <p class="lede">Parwe is a communication hub you run yourself — <strong style="color:var(--text)">all of your
+        organisation&rsquo;s messaging in one app</strong>. Native channels with the UX your team
+        already knows, and everything else bridged in and shown natively: Slack and
+        Teams first, with Google Chat, email and intranet news on the same path.
+        No licence fees, and no data leaving your servers.</p>
+      <div class="ctas">
+        <a class="btn" href="https://github.com/parwe-oss">Follow on GitHub</a>
+        <a class="btn ghost" href="#architecture">See the architecture</a>
+      </div>
+      <p class="meta-line chips">Self-hosted<span>·</span>Closed federation<span>·</span>AGPLv3 + Apache-2.0</p>
+      <p class="meta-line"><b>Status:</b> in early development — the stack below is running in a
+        private pilot. First public release lands in this org. No installable release yet.</p>
+    </div>
+
+    <div class="mock" role="img" aria-label="Preview of the planned Parwe client">
+      <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span style="margin-left:6px">parwe · one inbox</span></div>
+      <div class="cols">
+        <div class="side">
+          <h4>Channels</h4>
+          <div class="ch on"># general</div>
+          <div class="ch"># platform <span class="n">4</span></div>
+          <div class="ch"># incidents</div>
+          <h4>Bridged</h4>
+          <div class="ch"># sales-nordics</div>
+          <div class="ch"># vendor-acme</div>
+          <h4>Feed</h4>
+          <div class="ch">Intranet news</div>
+        </div>
+        <div class="main">
+          <div class="chan"><b># general</b><span class="swarm-btn">⌁ start a swarm</span></div>
+          <div class="msgs">
+            <div class="msg"><span class="av"></span><div class="mc">
+              <div class="h"><span class="who">Anni Laine</span><span class="t">14:32</span></div>
+              <p>Homeserver upgrade is done, media store moved to S3. No downtime.</p>
+            </div></div>
+            <div class="msg"><span class="av"></span><div class="mc">
+              <div class="h"><span class="who">Tuomas Rinne</span><span class="t">14:36</span><span class="chip">via Teams</span></div>
+              <p>Procurement signed off, ticket number coming here.</p>
+            </div></div>
+            <div class="msg"><span class="av agent"></span><div class="mc">
+              <div class="h"><span class="who">Scout</span><span class="chip agent">agent</span><span class="t">14:41</span></div>
+              <p>Catch-up: 3 decisions since yesterday — S3 migration done, procurement approved, on-call rotation changes Monday.</p>
+            </div></div>
+            <div class="feed-card">
+              <span class="src">INTRANET · targeted · Platform team</span>
+              <p>New on-call rotation starts Monday</p>
+            </div>
+          </div>
+          <div class="composer"><span>Message #general</span><span class="hint">your servers · your retention</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<div class="wrap">
+  <section id="product">
+    <div class="eyebrow">The problem</div>
+    <h2>Your people should not have to know which platform a conversation lives on.</h2>
+    <div class="prose">
+      <p>Most organisations run two or three chat tools at once, plus an intranet nobody
+        reads. The cost is not the licences — it is the daily tax of checking four places
+        and losing the thread between them.</p>
+      <p>Parwe is being built to put all of it in one client. <strong>Native channels</strong> are
+        first-class Matrix rooms. Conversations that still live in Slack or Teams arrive
+        through official APIs and render as ordinary messages, with a small origin
+        indicator and nothing else to learn. When a platform behind the wall changes,
+        the chat experience does not.</p>
+    </div>
+    <div class="grid4">
+      <div class="card"><h3><span>01</span>Native</h3><p>Channels, threads, reactions, files, search. Familiar on day one.</p></div>
+      <div class="card"><h3><span>02</span>Bridged</h3><p>Slack and Teams first, through official APIs — Google Chat and email next on the same path.</p></div>
+      <div class="card"><h3><span>03</span>Feed</h3><p>Intranet news targeted by team or site, delivered where people already are.</p></div>
+      <div class="card"><h3><span>04</span>Swarm</h3><p>One click from a channel to voice and video, on your own LiveKit.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Origin indicator</div>
+    <h2>Bridged, not embedded.</h2>
+    <div class="split">
+      <div>
+        <div class="prose">
+          <p>A bridged message is a real message in your homeserver: searchable, quotable,
+            kept under your retention policy. The only difference a person sees is one quiet
+            label — and the fact that some formatting cannot survive the trip.</p>
+        </div>
+        <ul class="bullets">
+          <li>Parwe Relay talks to the official Slack and Microsoft Graph APIs.</li>
+          <li>No scraping, no unofficial clients, no shared credentials.</li>
+          <li>Turn a bridge off and the history stays behind in Parwe.</li>
+        </ul>
+      </div>
+      <div class="opanel">
+        <div class="cap">Same room, three origins</div>
+        <div class="msg"><span class="av"></span><div class="mc">
+          <div class="h"><span class="who">Sanna Koski</span><span class="t">09:14</span></div>
+          <p>Native message. No label, because there is nothing to explain.</p>
+        </div></div>
+        <div class="msg"><span class="av"></span><div class="mc">
+          <div class="h"><span class="who">Marko Virta</span><span class="t">09:16</span><span class="chip">via Slack</span></div>
+          <p>Arrived through Relay. Same weight, same typography, one label.</p>
+        </div></div>
+        <div class="msg"><span class="av"></span><div class="mc">
+          <div class="h"><span class="who">Elina Aho</span><span class="t">09:21</span><span class="chip">via Teams</span></div>
+          <p>Replying in a thread works across the bridge in both directions.</p>
+        </div></div>
+      </div>
+    </div>
+    <div class="eyebrow" style="margin-top:34px">Bridge palette</div>
+    <div class="palette">
+      <span class="pill now">Slack</span>
+      <span class="pill now">Microsoft Teams</span>
+      <span class="pill now">SharePoint news</span>
+      <span class="pill">Google Chat</span>
+      <span class="pill">Email digest</span>
+      <span class="pill">RSS &amp; webhooks</span>
+      <span class="pill">Telegram</span>
+      <span class="pill">IRC &amp; XMPP</span>
+    </div>
+    <p class="prose" style="font-size:.82rem;margin-top:10px;color:var(--faint)">Solid = being built first. Outlined = same architecture, official APIs, on the roadmap.</p>
+  </section>
+
+  <section id="architecture">
+    <div class="eyebrow">Architecture</div>
+    <h2>Standard Matrix components, no proprietary core.</h2>
+    <div class="prose"><p>Everything below runs on infrastructure you control. Closed
+      federation by default: your homeserver talks to your domains only.</p></div>
+    <div class="archbox">
+      <div class="archcols">
+        <div class="col">
+          <h3>Clients</h3>
+          <div class="aitem"><b>Parwe Web</b><span>React</span></div>
+          <div class="aitem"><b>Parwe Desktop</b><span>Electron</span></div>
+          <div class="aitem"><b>Parwe Mobile</b><span>iOS · Android</span></div>
+          <div class="anote">Matrix client-server API<br>over TLS</div>
+        </div>
+        <div class="col">
+          <h3><span class="hl">Parwe Server</span><span class="sub">your infrastructure</span></h3>
+          <div class="aitem syn">
+            <div class="row"><b>Synapse</b><span>homeserver</span></div>
+            <p>Rooms, timelines, state, optional per-room end-to-end encryption. Federation closed to your domains.</p>
+          </div>
+          <div class="aitem"><b>MAS</b><span>OIDC SSO</span></div>
+          <div class="aitem"><b>PostgreSQL</b><span>state store</span></div>
+          <div class="aitem"><b>S3</b><span>media repo</span></div>
+          <div class="aitem"><b>Sygnal</b><span>push gateway</span></div>
+          <div class="aitem"><b>Element Call + LiveKit</b><span>swarms</span></div>
+        </div>
+        <div class="col">
+          <h3>Integrations</h3>
+          <div class="aitem"><b>Parwe Relay</b><span>bridge</span></div>
+          <div class="anote" style="margin:-4px 0 10px">Slack API · Microsoft Graph</div>
+          <div class="aitem"><b>Parwe Feed</b><span>news</span></div>
+          <div class="anote" style="margin:-4px 0 10px">SharePoint, targeted by team or site</div>
+          <div class="anote">Outbound only, over<br>official vendor APIs</div>
+        </div>
+      </div>
+      <div class="archfoot">
+        <span>AGPLv3 · Apache-2.0</span>
+        <span>no data leaves your servers · federation closed by default</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="agents">
+    <div class="eyebrow">Agents</div>
+    <h2>Agents are members, not integrations.</h2>
+    <div class="prose">
+      <p>Parwe is being designed so that AI agents join the hub the way people do:
+        as first-class members with their own identity, presence and permissions —
+        invited to a channel, and removed, like anyone else.</p>
+    </div>
+    <div class="grid4">
+      <div class="card"><h3>Own identity</h3><p>A real member with its own name, avatar and access. You always know who — or what — said it.</p></div>
+      <div class="card"><h3>Full audit trail</h3><p>Everything an agent does is an ordinary event in the timeline: visible, searchable, retained under the same policy. No invisible automation.</p></div>
+      <div class="card"><h3>Human gates</h3><p>Agents propose; people approve. A decision is one reaction in the channel, recorded like any other message.</p></div>
+      <div class="card"><h3>Whole-hub context</h3><p>Summarise a bridged Teams thread, watch a feed, draft a reply into Slack — it is all one inbox, so agents see all of it.</p></div>
+    </div>
+    <div class="prose" style="margin-top:22px"><p><strong>Your models.</strong> Agents run on
+      your infrastructure with your keys — cloud models or local ones. Conversations
+      never leave your servers to think.</p></div>
+  </section>
+
+  <section id="selfhost">
+    <div class="eyebrow">Self-hosting</div>
+    <h2>Your conversations, your servers.</h2>
+    <div class="prose"><p>The reason to run a hub yourself is not cost. It is knowing
+      where the messages are.</p></div>
+    <div class="grid4">
+      <div class="card"><h3>Closed federation</h3><p>Your homeserver talks to your domains only. Nothing replicates to a public network.</p></div>
+      <div class="card"><h3>Your identity provider</h3><p>OIDC through Matrix Authentication Service. Leavers lose access when HR says so.</p></div>
+      <div class="card"><h3>Retention you set</h3><p>Per-room policies in your database, with exports that satisfy an auditor.</p></div>
+      <div class="card"><h3>No licence fees</h3><p>AGPLv3 and Apache-2.0. Read the code, fork it, run it for as many people as you like.</p></div>
+    </div>
+    <div class="status">
+      <span>architecture locked</span>
+      <span>core stack in private pilot</span>
+      <span>clients &amp; relay in development</span>
+      <span>agents: designed, not yet built</span>
+      <span>first release: compose quickstart</span>
+    </div>
+  </section>
+
+  <section id="runit">
+    <div class="split">
+      <div>
+        <div class="eyebrow">Run it</div>
+        <h2>Up on your own hardware in an afternoon.</h2>
+        <div class="prose">
+          <p>Compose file for a pilot, Helm chart for production. Bring your own Postgres,
+            S3 bucket and identity provider, or start with the bundled defaults and move
+            them later.</p>
+          <p style="font-family:var(--mono);font-size:.78rem;color:var(--faint)">This is what the
+            first release will look like — there is no installable release yet.</p>
+        </div>
+        <div class="ctas"><a class="btn" href="https://github.com/parwe-oss">Follow on GitHub</a></div>
+      </div>
+      <div class="term">
+        <div class="cap"><span>Quickstart</span><span class="pv">first release preview</span></div>
+        <pre>$ git clone https://github.com/parwe-oss/parwe.git
+$ cd parwe &amp;&amp; docker compose up -d
+
+<span class="ok">parwe web ready on :8080</span>
+synapse healthy · mas connected to your idp
+relay: 2 slack workspaces, 1 teams tenant</pre>
+        <div class="cellstrip">
+          <div><b>Docker Compose</b><span>pilot</span></div>
+          <div><b>Helm chart</b><span>production</span></div>
+          <div><b>Postgres + S3</b><span>bring your own</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site">
+    <a href="https://www.linkedin.com/in/tiltti/" aria-label="Contact author" style="display:flex"><svg width="22" height="22" viewBox="0 0 32 32" aria-hidden="true"><g fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M13.2 8.4 16 5.2 18.8 8.4" stroke="#E8B34A" stroke-width="2.3"></path>
+      <g stroke="#E8EAEE" stroke-width="2.1"><path d="M6.4 20.6 9.2 17.4 12 20.6"></path><path d="M20 20.6 22.8 17.4 25.6 20.6"></path><path d="M13.2 15.2 16 12 18.8 15.2"></path></g>
+    </g></svg></a>
+    <span class="wordmark" style="font-size:.95rem">Parwe</span>
+    <span class="phon">/ˈpɑr·ʋi/ · a flock</span>
+    <span class="lic">AGPLv3 · Apache-2.0<br><a href="https://github.com/parwe-oss">github.com/parwe-oss</a> · <a href="https://www.linkedin.com/in/tiltti/">Contact author</a></span>
+  </footer>
+</div>
