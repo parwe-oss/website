@@ -86,7 +86,16 @@
     0%, 100% { box-shadow: 0 0 0 0 rgba(232,179,74,0); border-color: rgba(232,179,74,.3); }
     50% { box-shadow: 0 0 10px 1px rgba(232,179,74,.4); border-color: rgba(232,179,74,.9); }
   }
-  @media (prefers-reduced-motion: reduce) { .chip.via { animation: none; border-color: rgba(232,179,74,.6); } }
+  .chip.via.g { color: var(--mint); border-color: rgba(82,217,139,.4); animation-name: viaPulseG; }
+  @keyframes viaPulseG {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(82,217,139,0); border-color: rgba(82,217,139,.3); }
+    50% { box-shadow: 0 0 10px 1px rgba(82,217,139,.4); border-color: rgba(82,217,139,.9); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chip.via { animation: none; border-color: rgba(232,179,74,.6); }
+    .chip.via.g { animation: none; border-color: rgba(82,217,139,.6); }
+    .rev { opacity: 1 !important; transform: none !important; }
+  }
   .msg p { margin: 3px 0 0; color: var(--muted); }
   .feed-card { border: 1px solid var(--line); border-left: 2px solid var(--honey); border-radius: 6px; padding: 9px 12px; background: var(--panel-2); }
   .feed-card .src { font-family: var(--mono); font-size: .62rem; color: var(--faint); }
@@ -179,11 +188,14 @@
   .band { background:
       radial-gradient(1150px 640px at 28% -8%, rgba(232,179,74,.19), transparent 58%),
       radial-gradient(760px 460px at 88% 60%, rgba(232,179,74,.07), transparent 60%),
-      linear-gradient(180deg, #07090B, var(--ink) 75%);
+      linear-gradient(180deg, #07090B, rgba(13,15,18,0) 78%);
     border-bottom: 1px solid var(--line); }
-  #agents { background: radial-gradient(720px 420px at 92% 12%, rgba(232,179,74,.08), transparent 60%); }
-  #runit { background: radial-gradient(720px 440px at 4% 85%, rgba(232,179,74,.08), transparent 60%); }
-  #selfhost { background: radial-gradient(640px 380px at 55% 110%, rgba(232,179,74,.05), transparent 60%); }
+  #product { background: radial-gradient(700px 420px at 90% 15%, rgba(232,179,74,.09), transparent 60%); }
+  #origin { background: radial-gradient(700px 420px at 5% 40%, rgba(232,179,74,.09), transparent 60%); }
+  #architecture { background: radial-gradient(760px 440px at 92% 70%, rgba(232,179,74,.08), transparent 60%); }
+  #agents { background: radial-gradient(720px 420px at 8% 20%, rgba(232,179,74,.11), transparent 60%); }
+  #runit { background: radial-gradient(720px 440px at 90% 80%, rgba(232,179,74,.10), transparent 60%); }
+  #selfhost { background: radial-gradient(640px 380px at 50% 110%, rgba(232,179,74,.08), transparent 60%); }
   header.site nav { align-items: center; }
   .navbtn { padding: 8px 16px; font-size: .88rem; }
   header.site nav a.btn { color: #14100a; }
@@ -198,7 +210,15 @@
   .av { width: 26px; height: 26px; border-radius: 7px; background: #252B33; flex: none; margin-top: 2px; }
   .av.agent { background: rgba(232,179,74,.22); border: 1px solid rgba(232,179,74,.5); }
   .mc { flex: 1; min-width: 0; }
+
+  #flock { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+  .topbar, .band, .wrap { position: relative; z-index: 1; }
+  .rev { opacity: 0; transform: translateY(14px); transition: opacity .7s ease, transform .7s ease; }
+  .rev.in { opacity: 1; transform: none; }
+  .card { transition: transform .25s ease, border-color .25s ease; }
+  .card:hover { transform: translateY(-3px); border-color: rgba(232,179,74,.45); }
 </style>
+<canvas id="flock" aria-hidden="true"></canvas>
 
 <div class="topbar"><div class="wrap">
   <header class="site">
@@ -262,7 +282,7 @@
               <p>Homeserver upgrade is done, media store moved to S3. No downtime.</p>
             </div></div>
             <div class="msg"><span class="av"></span><div class="mc">
-              <div class="h"><span class="who">Tuomas Rinne</span><span class="t">14:36</span><span class="chip via">via Teams</span></div>
+              <div class="h"><span class="who">Tuomas Rinne</span><span class="t">14:36</span><span class="chip via g">via Teams</span></div>
               <p>Procurement signed off, ticket number coming here.</p>
             </div></div>
             <div class="msg"><span class="av agent"></span><div class="mc">
@@ -284,7 +304,7 @@
 <div class="wrap">
   <section id="product">
     <div class="eyebrow">The problem</div>
-    <h2>Your people should not have to know which platform a conversation lives on.</h2>
+    <h2>Your people should not have to care which platform a conversation lives on.</h2>
     <div class="prose">
       <p>Most organisations run two or three chat tools at once, plus an intranet nobody
         reads. The cost is not the licences — it is the daily tax of checking four places
@@ -303,7 +323,7 @@
     </div>
   </section>
 
-  <section>
+  <section id="origin">
     <div class="eyebrow">Origin indicator</div>
     <h2>Bridged, not embedded.</h2>
     <div class="split">
@@ -330,7 +350,7 @@
           <p>Arrived through Relay. Same weight, same typography, one label.</p>
         </div></div>
         <div class="msg"><span class="av"></span><div class="mc">
-          <div class="h"><span class="who">Elina Aho</span><span class="t">09:21</span><span class="chip via">via Teams</span></div>
+          <div class="h"><span class="who">Elina Aho</span><span class="t">09:21</span><span class="chip via g">via Teams</span></div>
           <p>Replying in a thread works across the bridge in both directions.</p>
         </div></div>
       </div>
@@ -474,3 +494,36 @@ relay: 2 slack workspaces, 1 teams tenant</pre>
     <span class="lic">AGPLv3 · Apache-2.0<br><a href="https://github.com/parwe-oss">github.com/parwe-oss</a> · <a href="https://www.linkedin.com/in/tiltti/">Contact author</a></span>
   </footer>
 </div>
+
+<script>
+(function(){
+  var c = document.getElementById('flock'); if (!c) return;
+  var x = c.getContext('2d'), W, H;
+  var rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function rs(){ W = c.width = innerWidth; H = c.height = innerHeight; } rs();
+  addEventListener('resize', rs);
+  var B = [], N = 16;
+  for (var i = 0; i < N; i++) B.push({ x: Math.random(), y: Math.random(), s: 7 + Math.random()*8,
+    v: 10 + Math.random()*14, ph: Math.random()*6.28, h: Math.random() < .25 });
+  function draw(t){
+    x.clearRect(0, 0, W, H);
+    for (var i = 0; i < N; i++){ var b = B[i];
+      var px = ((b.x*(W+80) + (rm ? 0 : t*0.001*b.v)) % (W+80)) - 40;
+      var py = b.y*H + Math.sin(b.ph + t*0.0004)*14;
+      x.strokeStyle = b.h ? 'rgba(232,179,74,0.10)' : 'rgba(232,234,238,0.06)';
+      x.lineWidth = 2; x.lineCap = 'round'; x.lineJoin = 'round'; x.beginPath();
+      x.moveTo(px - b.s*.6, py + b.s*.35); x.lineTo(px, py - b.s*.25); x.lineTo(px + b.s*.6, py + b.s*.35);
+      x.stroke(); }
+    if (!rm) requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+(function(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var els = document.querySelectorAll('section');
+  els.forEach(function(e){ e.classList.add('rev'); });
+  var o = new IntersectionObserver(function(es){ es.forEach(function(en){
+    if (en.isIntersecting){ en.target.classList.add('in'); o.unobserve(en.target); } }); }, { threshold: .1 });
+  els.forEach(function(e){ o.observe(e); });
+})();
+</script>
